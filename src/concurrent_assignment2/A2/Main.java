@@ -12,12 +12,8 @@ public class Main {
 		
 		queue=new Signalled_Queue();
 		
-		new Writer(queue);
-		new Reader(queue);
-	
+                new Writer(queue);
+                new Reader(queue);
 
-		
-		
-		
 	}
 }
