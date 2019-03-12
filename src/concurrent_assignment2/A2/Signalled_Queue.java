@@ -14,24 +14,40 @@ import java.util.logging.Logger;
  
 class Signalled_Queue implements Queue{
 	int n=0;
-
+        volatile boolean canWrite = true;
         
 	@Override
 	synchronized public void read() {
+            while(canWrite) {
+                //Waits turn
+                try {
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Signalled_Queue.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
             
             System.out.println("Read: " + n);
-            try {
-                this.wait();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Signalled_Queue.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            canWrite = true;
+            
+            this.notify();
 	}
 
 	@Override
 	synchronized public void write(int x) {
-            System.out.println("Write: " + x);
+            while(!canWrite){
+                try {
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Signalled_Queue.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
             n = x;
+            System.out.println("Write: " + x);
+            canWrite = false;
             this.notify();
+            
             
 	}
 
