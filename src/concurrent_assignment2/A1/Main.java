@@ -12,11 +12,8 @@ public class Main {
 		
 		queue=new CS_Queue();
 		
-		Thread iWrite = new Thread(new Writer(queue));
-                Thread iRead = new Thread(new Reader(queue));
-		
-                iWrite.start();
-                iRead.start();
+		new Writer(queue);
+                new Reader(queue);
 	
 
 		
