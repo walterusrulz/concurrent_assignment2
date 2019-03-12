@@ -22,12 +22,11 @@ public class Reader implements Runnable {
         for (int i = 0; i < 10; i++) {
             try {
                 Thread.sleep((long) (Math.random()*500));
-                q.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             
-            q.read();  
+            q.read();
         }
     }
 }

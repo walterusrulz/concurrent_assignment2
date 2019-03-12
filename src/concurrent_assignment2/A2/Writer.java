@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * @author onsur
  */
 public class Writer implements Runnable{
-    volatile Signalled_Queue q;
+    Signalled_Queue q;
 	
     public Writer(Signalled_Queue q){
             this.q=q;
@@ -31,7 +31,6 @@ public class Writer implements Runnable{
                 e.printStackTrace();
             }
             q.write(i++);
-            q.notify();
         }
     }
 }

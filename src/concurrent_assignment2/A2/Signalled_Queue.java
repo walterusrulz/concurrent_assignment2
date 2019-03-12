@@ -31,7 +31,8 @@ class Signalled_Queue implements Queue{
 	synchronized public void write(int x) {
             System.out.println("Write: " + x);
             n = x;
-            this.notifyAll();
+            this.notify();
+            
 	}
 
 	@Override
