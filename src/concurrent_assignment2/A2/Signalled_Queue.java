@@ -14,17 +14,24 @@ import java.util.logging.Logger;
  
 class Signalled_Queue implements Queue{
 	int n=0;
-	
+
+        
 	@Override
-	public void read() {
-            System.out.println("Read: " + n);
+	synchronized public void read() {
             
+            System.out.println("Read: " + n);
+            try {
+                this.wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Signalled_Queue.class.getName()).log(Level.SEVERE, null, ex);
+            }
 	}
 
 	@Override
-	public void write(int x) {
-            System.out.println("Write: " + n);
+	synchronized public void write(int x) {
+            System.out.println("Write: " + x);
             n = x;
+            this.notifyAll();
 	}
 
 	@Override
