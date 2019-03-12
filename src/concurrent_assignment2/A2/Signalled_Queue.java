@@ -1,6 +1,8 @@
 package concurrent_assignment2.A2;
 
 import concurrent_assignment2.A_intro.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Use the synchronized keyword and signals so that
@@ -15,14 +17,14 @@ class Signalled_Queue implements Queue{
 	
 	@Override
 	public void read() {
-		// TODO Auto-generated method stub
-		
+            System.out.println("Read: " + n);
+            
 	}
 
 	@Override
 	public void write(int x) {
-		// TODO Auto-generated method stub
-		
+            System.out.println("Write: " + n);
+            n = x;
 	}
 
 	@Override
