@@ -79,8 +79,8 @@ public class Garden extends Applet {
         
         counter = new Counter(counterD);
        
-        turnstile1= new Turnstile(turn1D,counter);
-        turnstile2= new Turnstile(turn2D,counter);
+        turnstile1= new Turnstile(turn1D,counter,0);//added turn to constructor call
+        turnstile2= new Turnstile(turn2D,counter,1);//added turn to constructor call
         turnstile1.start();
         turnstile2.start();
     }
@@ -91,17 +91,34 @@ class Counter {
 
     int value=0;
     NumberCanvas display;
+    boolean[] entryR = {false, false};//will to enter CS
+    volatile int turn = 0;//turn variable, by Dekker, when impass occurs
 
     Counter(NumberCanvas n) {
         display=n;
         display.setvalue(value);
     }
 
-    void increment() {
+    void increment(int ID) {//need to know which Turnstile is accessing
+        this.entryR[ID]= true;//set intention to enter CS by Turnstile.ID to true
+        while(this.entryR[1-ID]){//if the other one is also signalling will to enter
+            if(this.turn == 1-ID){//if it's the other one's turn
+                this.entryR[ID] = false;//I lease my turn
+                while(this.turn == 1 -ID){//While it's still the other one's turn
+                    //do nothing
+                }
+                this.entryR[ID] = true;//Signal my will to enter CS
+            }
+        }//entering CS
+        
         int temp = value;   //read[v]
         CC.ForceCC();
         value=temp+1;       //write[v+1]
         display.setvalue(value);
+        
+        //Exiting CS
+        this.turn = 1-ID;
+        this.entryR[ID] = false;
     }
 }
 
@@ -111,9 +128,10 @@ class Counter {
 class Turnstile extends Thread {
   NumberCanvas display;
   Counter people;
+  int ID;//added new attribute ID (needed for synchro)
 
-  Turnstile(NumberCanvas n,Counter c)
-    { display = n; people = c; }
+  Turnstile(NumberCanvas n,Counter c, int m)//constructor sets turn to input parameter
+    { display = n; people = c; ID = m;}
 
   public void run() {
     try{
@@ -121,7 +139,9 @@ class Turnstile extends Thread {
       for (int i=1;i<=Garden.MAX;i++){
         Thread.sleep(500); //0.5 second
         display.setvalue(i);
-        people.increment();
+        //pre
+        people.increment(this.ID);//which Turnstile is accessing
+        //post
       }
     } catch (InterruptedException e) {}
   }
