@@ -14,11 +14,11 @@ import java.util.logging.Logger;
  
 class Signalled_Queue implements Queue{
 	int n=0;
-        volatile boolean canWrite = true;
+        boolean canWrite = true;
         
 	@Override
 	synchronized public void read() {
-            while(canWrite) {
+            if(canWrite) {
                 //Waits turn
                 try {
                     this.wait();
@@ -35,7 +35,7 @@ class Signalled_Queue implements Queue{
 
 	@Override
 	synchronized public void write(int x) {
-            while(!canWrite){
+            if(!canWrite){
                 try {
                     this.wait();
                 } catch (InterruptedException ex) {
