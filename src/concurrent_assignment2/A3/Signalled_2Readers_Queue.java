@@ -1,7 +1,9 @@
 package concurrent_assignment2.A3;
 
 import concurrent_assignment2.A_intro.Queue;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import concurrent_assignment2.A_intro.Queue;
 /**
  * Use the synchronized keyword and signals.
  * 
@@ -15,20 +17,56 @@ import concurrent_assignment2.A_intro.Queue;
  
 class Signalled_2Readers_Queue implements Queue{
 	int n=0;
+	boolean turn = true;
 	
 	
 	@Override
-	public void read(int ID) {
-		// TODO Auto-generated method stub
+	synchronized public void read(int ID) {
+            while(turn){
+               try {
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Signalled_2Readers_Queue.class.getName()).log(Level.SEVERE, null, ex);
+                } 
+            }
+            
+            if(ID == 1){
+                System.out.println("Read "+ ID +": " + n);
+                this.notify();
+            }else if(ID == 2){
+                try {
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Signalled_2Readers_Queue.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.out.println("Read "+ ID +": " + n);
+                turn=true;
+            }
+            
+            
+            
+                      
+            
+            // TODO Auto-generated method stub
 		
 	}
 	
 
 	@Override
-	public void write(int x) {
-		// TODO Auto-generated method stub
-		
-	}
+	synchronized public void write(int x) {
+            if(!turn){
+                try {
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Signalled_2Readers_Queue.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+                
+            n = x;
+            System.out.println("Write: " + x);
+            turn = false;
+            this.notifyAll();
+        }
 	
 	@Override
 	public void read() {
