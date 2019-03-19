@@ -17,12 +17,12 @@ import concurrent_assignment2.A_intro.Queue;
  
 class Signalled_2Readers_Queue implements Queue{
 	int n=0;
-	boolean turn = true;
+	volatile int turn = 0;
 	
 	
 	@Override
 	synchronized public void read(int ID) {
-            while(turn){
+            while(turn != ID){
                try {
                     this.wait();
                 } catch (InterruptedException ex) {
@@ -30,31 +30,18 @@ class Signalled_2Readers_Queue implements Queue{
                 } 
             }
             
-            if(ID == 1){
-                System.out.println("Read "+ ID +": " + n);
-                this.notify();
-            }else if(ID == 2){
-                try {
-                    this.wait();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Signalled_2Readers_Queue.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                System.out.println("Read "+ ID +": " + n);
-                turn=true;
-            }
+            System.out.println("Read "+ ID +": " + n);
+            this.notifyAll();
+            if (ID == 1) turn = 2;
+            else if (ID == 2) turn = 0;
+        }
             
-            
-            
-                      
-            
-            // TODO Auto-generated method stub
-		
-	}
+	
 	
 
 	@Override
 	synchronized public void write(int x) {
-            if(!turn){
+            while(turn != 0){
                 try {
                     this.wait();
                 } catch (InterruptedException ex) {
@@ -64,7 +51,7 @@ class Signalled_2Readers_Queue implements Queue{
                 
             n = x;
             System.out.println("Write: " + x);
-            turn = false;
+            turn = 1;
             this.notifyAll();
         }
 	
@@ -72,9 +59,7 @@ class Signalled_2Readers_Queue implements Queue{
 	public void read() {
 		// no need to implement this
 		
-	}
-
-	
+	}	
 	
 	
 }
