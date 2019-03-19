@@ -82,8 +82,8 @@ public class Garden extends Applet {
         
         counter = new Counter(counterD);
        
-        turnstile1= new Turnstile(turn1D,counter, 0);//Setting default turns
-        turnstile2= new Turnstile(turn2D,counter, 1);//Setting default turns
+        turnstile1= new Turnstile(turn1D,counter);
+        turnstile2= new Turnstile(turn2D,counter);
         turnstile1.start();
         turnstile2.start();
     }
@@ -94,30 +94,19 @@ class Counter {
 
     int value=0;
     NumberCanvas display;
-    volatile int turn = 1;//Which Turnstile starts first
-    
 
     Counter(NumberCanvas n) {
         display=n;
         display.setvalue(value);
     }
 
-    synchronized void increment(int ID) {//accepts ID
-        while(this.turn!=ID){//wait while it's not your turn
-            try {
-                this.wait();
-            } catch (InterruptedException ex) {
-                System.out.println("Error while waiting on thread\n");
-            }
-        }
+    synchronized void increment() {     
         //Enter CS (preprotocol)
         int temp = value;   //read[v]
         CC.ForceCC();
         value=temp+1;       //write[v+1]
         display.setvalue(value);
         //Exit CS (Postprotocol)
-        this.turn = 1-ID;
-        this.notify();
     }
 }
 
@@ -127,10 +116,10 @@ class Counter {
 class Turnstile extends Thread {
   NumberCanvas display;
   Counter people;
-  int ID;//Each Turnstile needs ID for the turn synchronization
+  
 
-  Turnstile(NumberCanvas n,Counter c, int ID)//Constructor accepting ID
-    { display = n; people = c; this.ID = ID;}
+  Turnstile(NumberCanvas n,Counter c)
+    { display = n; people = c;}
 
   public void run() {
     try{
@@ -138,7 +127,7 @@ class Turnstile extends Thread {
       for (int i=1;i<=Garden.MAX;i++){
         Thread.sleep(500); //0.5 second
         display.setvalue(i);
-        people.increment(this.ID);//notify Increment() which thread is accessing
+        people.increment();
       }
     } catch (InterruptedException e) {}
   }
