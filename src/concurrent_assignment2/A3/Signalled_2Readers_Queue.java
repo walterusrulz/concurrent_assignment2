@@ -21,7 +21,7 @@ class Signalled_2Readers_Queue implements Queue{
 	
 	
 	@Override
-	synchronized public void read(int ID) {
+	synchronized public void read(int ID) {           
             while(turn != ID){
                try {
                     this.wait();
@@ -31,9 +31,13 @@ class Signalled_2Readers_Queue implements Queue{
             }
             
             System.out.println("Read "+ ID +": " + n);
+            
+            // if (ID == 1) turn = 2;
+            // else if (ID == 2) turn = 0;
+            
+            turn = (ID + 1) % 3;
+            
             this.notifyAll();
-            if (ID == 1) turn = 2;
-            else if (ID == 2) turn = 0;
         }
             
 	
