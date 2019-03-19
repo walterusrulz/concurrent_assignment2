@@ -17,7 +17,7 @@ import concurrent_assignment2.A_intro.Queue;
  
 class Signalled_2Readers_Queue implements Queue{
 	int n=0;
-	volatile int turn = 0;
+	int turn = 0;
 	
 	
 	@Override
